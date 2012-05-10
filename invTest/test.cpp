@@ -15,7 +15,13 @@ int main()
    {
       //cout << "Here is the matrix A:\n" << A << endl;
       //cout << "The determinant of A is " << A.determinant() << endl;
-      A(0, 0) += 0.000000001;
+      for ( int x = 0; x < 10; ++x )
+      {
+         for ( int y = 0; y < 10; ++y )
+         {
+            A(x, y) += 0.000000001;
+         }
+      }
       acc += A.inverse();
    }
    std::cout << acc << std::endl;
