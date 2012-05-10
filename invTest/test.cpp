@@ -4,6 +4,31 @@
 using namespace std;
 using namespace Eigen;
 
+namespace
+{
+    const double Pi = 4.0 * std::atan( 1.0 );
+}
+
+double multivariatePDF( const VectorXf& obs, const VectorXf& mean, const MatrixXf& cov )
+{
+    Eigen::FullPivLU<MatrixXf> lu(cov);
+    
+    // Inverse and determinant computed together for efficiency
+    // via a precursor LU decomp.
+    MatrixXf covInv = lu.inverse();
+    float det = lu.determinant();
+    
+    VectorXf diff = obs - mean;
+    
+    // Note that the internet reckons more numerically stable to compute
+    // using cholesky decomposition
+    float mdist = 0.5f * (diff.transpose() * covInv * diff)[0];
+    float k = 10.0f;
+    float normTerm = std::log( 1.0f / std::sqrt( std::pow( 2.0 * Pi, k ) * det ) );
+    
+    return normTerm - mdist;
+}
+
 int main()
 {
    MatrixXf A(10, 10);
@@ -22,7 +47,8 @@ int main()
             A(x, y) += 0.000000001;
          }
       }
-      acc += A.inverse();
+      Eigen::FullPivLU<MatrixXf> lu(A);
+      acc += lu.inverse();
    }
    std::cout << acc << std::endl;
 }
